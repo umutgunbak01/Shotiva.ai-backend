@@ -24,18 +24,20 @@ app.use((req, res, next) => {
     next();
 });
 
-// Root route for debugging
+// Root route handler
 app.get('/', (req, res) => {
-    console.log('Root route requested');
     res.json({
         status: 'ok',
-        message: 'Server is running',
-        routes: [
-            '/health',
-            '/test',
-            '/api/image/test',
-            '/api/image/enhance'
-        ]
+        message: 'Shotiva AI API is running',
+        version: '1.0.0',
+        endpoints: {
+            health: '/health',
+            test: '/test',
+            image: {
+                test: '/api/image/test',
+                enhance: '/api/image/enhance'
+            }
+        }
     });
 });
 
@@ -44,14 +46,19 @@ app.use('/uploads', express.static(uploadsDir));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-    console.log('Health check requested');
-    res.json({ status: 'ok' });
+    res.json({ 
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
 });
 
 // Test endpoint
 app.get('/test', (req, res) => {
-    console.log('Test endpoint requested');
-    res.json({ message: 'Server is working' });
+    res.json({ 
+        message: 'Server is working',
+        timestamp: new Date().toISOString()
+    });
 });
 
 // Register routes
@@ -62,7 +69,8 @@ app.use((err, req, res, next) => {
     console.error('Server error:', err);
     res.status(500).json({
         error: 'Internal server error',
-        details: err.message
+        details: err.message,
+        timestamp: new Date().toISOString()
     });
 });
 
@@ -71,7 +79,15 @@ app.use((req, res) => {
     console.log('404 Not Found:', req.method, req.path);
     res.status(404).json({
         error: 'Not found',
-        details: `Cannot ${req.method} ${req.path}`
+        details: `Cannot ${req.method} ${req.path}`,
+        timestamp: new Date().toISOString(),
+        availableEndpoints: [
+            '/',
+            '/health',
+            '/test',
+            '/api/image/test',
+            '/api/image/enhance'
+        ]
     });
 });
 
