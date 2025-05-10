@@ -24,6 +24,21 @@ app.use((req, res, next) => {
     next();
 });
 
+// Root route for debugging
+app.get('/', (req, res) => {
+    console.log('Root route requested');
+    res.json({
+        status: 'ok',
+        message: 'Server is running',
+        routes: [
+            '/health',
+            '/test',
+            '/api/image/test',
+            '/api/image/enhance'
+        ]
+    });
+});
+
 // Serve static files from uploads directory
 app.use('/uploads', express.static(uploadsDir));
 
@@ -65,6 +80,7 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     console.log('Uploads directory:', uploadsDir);
     console.log('Routes registered:');
+    console.log('- GET /');
     console.log('- GET /health');
     console.log('- GET /test');
     console.log('- GET /api/image/test');
