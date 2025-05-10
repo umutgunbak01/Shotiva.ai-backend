@@ -7,6 +7,9 @@
     "start": "node src/app.js",
     "dev": "nodemon src/app.js"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@fal-ai/client": "^0.8.0",
     "cors": "^2.8.5",
