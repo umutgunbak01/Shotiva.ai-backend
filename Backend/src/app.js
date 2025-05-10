@@ -19,15 +19,26 @@ app.use(cors());
 app.use(express.json());
 
 // Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static(uploadsDir));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
 
+// Test endpoint
+app.get('/test', (req, res) => {
+    res.json({ message: 'Server is working' });
+});
+
 // Register routes
 app.use('/api/image', imageRoutes);
+
+// Log all requests
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+    next();
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -53,6 +64,8 @@ app.listen(PORT, () => {
     console.log('Uploads directory:', uploadsDir);
     console.log('Routes registered:');
     console.log('- GET /health');
+    console.log('- GET /test');
+    console.log('- GET /api/image/test');
     console.log('- POST /api/image/enhance');
 });
 

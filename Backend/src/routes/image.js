@@ -3,11 +3,18 @@ const router = express.Router();
 const multer = require('multer');
 const { fal } = require('@fal-ai/client');
 const path = require('path');
+const fs = require('fs');
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, '../../uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // Configure multer for handling file uploads
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/');
+        cb(null, uploadsDir);
     },
     filename: function (req, file, cb) {
         cb(null, Date.now() + path.extname(file.originalname));
@@ -36,6 +43,12 @@ router.post('/enhance', upload.single('image'), async (req, res) => {
             path: req.file.path,
             size: req.file.size
         });
+
+        // Verify file exists
+        if (!fs.existsSync(req.file.path)) {
+            console.error('File not found after upload:', req.file.path);
+            return res.status(500).json({ error: 'File upload failed' });
+        }
 
         // Process image with Fal AI product-shot endpoint
         console.log('Starting Fal AI processing...');
@@ -80,6 +93,11 @@ router.post('/enhance', upload.single('image'), async (req, res) => {
             details: error.message
         });
     }
+});
+
+// Test route
+router.get('/test', (req, res) => {
+    res.json({ message: 'Image routes are working' });
 });
 
 module.exports = router; 
