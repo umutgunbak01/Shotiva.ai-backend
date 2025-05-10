@@ -18,27 +18,29 @@ app.use(cors());
 // Parse JSON bodies
 app.use(express.json());
 
-// Serve static files from uploads directory
-app.use('/uploads', express.static(uploadsDir));
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok' });
-});
-
-// Test endpoint
-app.get('/test', (req, res) => {
-    res.json({ message: 'Server is working' });
-});
-
-// Register routes
-app.use('/api/image', imageRoutes);
-
 // Log all requests
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
     next();
 });
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(uploadsDir));
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+    console.log('Health check requested');
+    res.json({ status: 'ok' });
+});
+
+// Test endpoint
+app.get('/test', (req, res) => {
+    console.log('Test endpoint requested');
+    res.json({ message: 'Server is working' });
+});
+
+// Register routes
+app.use('/api/image', imageRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
