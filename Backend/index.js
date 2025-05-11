@@ -6,7 +6,7 @@ const sharp = require('sharp');
 const { fal } = require('@fal-ai/client');
 const path = require('path');
 
-const app = express();
+const app = require('./app');
 const port = process.env.PORT || 3000;
 
 // Configure Fal AI
@@ -72,7 +72,16 @@ app.post('/api/white-background', upload.single('image'), async (req, res) => {
     }
 });
 
+// Debug route to check FAL_KEY
+app.get('/debug/fal-key', (req, res) => {
+  if (process.env.FAL_KEY) {
+    res.json({ falKeySet: true });
+  } else {
+    res.json({ falKeySet: false });
+  }
+});
+
 // Start server
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-}); 
+// app.listen(port, () => {
+//     console.log(`Server running on port ${port}`);
+// }); 

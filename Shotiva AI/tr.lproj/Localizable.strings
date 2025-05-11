@@ -1,0 +1,27 @@
+/* 
+  Localizable.strings (Turkish)
+  Shotiva AI
+*/
+
+"app.title" = "Shotiva AI";
+"enhance.product" = "Ürünü Geliştir";
+"past.products" = "Geçmiş Ürünler";
+"enhance.product.view" = "Ürün Geliştirme Görünümü";
+"past.products.view" = "Geçmiş Ürünler Görünümü";
+"select.from.gallery" = "Galeriden Seç";
+"take.photo" = "Fotoğraf Çek";
+"enhance.image" = "Görseli Geliştir";
+"download.image" = "Görseli İndir";
+"uploading.image" = "Görsel yükleniyor...";
+"processing.image" = "Görsel AI ile işleniyor...";
+"select.image" = "Görsel Seç";
+"enhancing" = "Geliştiriliyor...";
+"clear.image" = "Görseli Temizle";
+"enhanced.result" = "Geliştirilmiş Sonuç";
+"error.image.conversion" = "Görsel dönüştürme başarısız";
+"error.invalid.url" = "Geçersiz sunucu adresi";
+"error.invalid.response" = "Geçersiz sunucu yanıtı";
+"error.server" = "Sunucu hatası oluştu";
+"error.no.data" = "Veri alınamadı";
+"error.image.loading" = "Geliştirilmiş görsel yüklenemedi";
+"error.decoding" = "Sunucu yanıtı işlenemedi"; 

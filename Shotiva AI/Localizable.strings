@@ -1,0 +1,28 @@
+/* 
+  Localizable.strings
+  Shotiva AI
+*/
+
+"app.title" = "Shotiva AI";
+"enhance.product" = "Enhance Product";
+"past.products" = "Past Products";
+"enhance.product.view" = "Enhance Product View";
+"past.products.view" = "Past Products View";
+"select.from.gallery" = "Select from Gallery";
+"take.photo" = "Take Photo";
+"enhance.image" = "Enhance Image";
+"download.image" = "Download Image";
+"uploading.image" = "Uploading image...";
+"processing.image" = "Processing image with AI...";
+"select.image" = "Select Image";
+"enhance.image" = "Enhance Image";
+"enhancing" = "Enhancing...";
+"clear.image" = "Clear Image";
+"enhanced.result" = "Enhanced Result";
+"error.image.conversion" = "Failed to convert image";
+"error.invalid.url" = "Invalid server URL";
+"error.invalid.response" = "Invalid server response";
+"error.server" = "Server error occurred";
+"error.no.data" = "No data received";
+"error.image.loading" = "Failed to load enhanced image";
+"error.decoding" = "Failed to process server response"; 
