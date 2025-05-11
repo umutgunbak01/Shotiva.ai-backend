@@ -88,7 +88,7 @@ struct EnhanceProductView: View {
                         .cornerRadius(10)
                 } else {
                     Button(action: { isImagePickerPresented = true }) {
-                        VStack {
+        VStack {
                             Image(systemName: "photo")
                                 .font(.system(size: 40))
                             Text(NSLocalizedString("select.image", comment: ""))
@@ -299,4 +299,3 @@ struct PastProductsView: View {
     ContentView()
 }
 
- 

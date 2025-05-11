@@ -6,7 +6,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '..', '..', 'uploads');
+const uploadsDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
 }
@@ -41,7 +41,8 @@ router.post('/enhance', upload.single('image'), async (req, res) => {
         console.log('File received:', {
             filename: req.file.filename,
             path: req.file.path,
-            size: req.file.size
+            size: req.file.size,
+            mimetype: req.file.mimetype
         });
 
         // Verify file exists
@@ -50,24 +51,35 @@ router.post('/enhance', upload.single('image'), async (req, res) => {
             return res.status(500).json({ error: 'File upload failed' });
         }
 
+        // Read the file and convert to base64
+        const imageBuffer = fs.readFileSync(req.file.path);
+        const base64Image = `data:${req.file.mimetype};base64,${imageBuffer.toString('base64')}`;
+
+        console.log('Image converted to base64, length:', base64Image.length);
+
         // Process image with Fal AI product-shot endpoint
-        console.log('Starting Fal AI processing...');
+        console.log('Starting Fal AI processing with input:', {
+            scene_description: req.body.prompt || 'on a clean white background, professional product photography',
+            optimize_description: true,
+            num_results: 1,
+            fast: true,
+            placement_type: "manual_placement",
+            shot_size: [1000, 1000],
+            manual_placement_selection: "bottom_center",
+            sync_mode: true
+        });
+
         const result = await fal.subscribe('fal-ai/bria/product-shot', {
             input: {
-                image_url: req.file.path,
-                ref_image_url: "https://storage.googleapis.com/falserverless/bria/white-background.png",
+                image_url: base64Image,
+                scene_description: req.body.prompt || 'on a clean white background, professional product photography',
                 optimize_description: true,
                 num_results: 1,
                 fast: true,
                 placement_type: "manual_placement",
                 shot_size: [1000, 1000],
-                manual_placement_selection: "bottom_center"
-            },
-            logs: true,
-            onQueueUpdate: (update) => {
-                if (update.status === "IN_PROGRESS") {
-                    console.log('Processing update:', update.logs.map((log) => log.message));
-                }
+                manual_placement_selection: "bottom_center",
+                sync_mode: true
             }
         });
 
@@ -75,6 +87,9 @@ router.post('/enhance', upload.single('image'), async (req, res) => {
             success: true,
             imageUrl: result.images[0].url
         });
+
+        // Clean up: Delete the uploaded file
+        fs.unlinkSync(req.file.path);
 
         // Return the enhanced image URL
         res.json({
@@ -86,11 +101,15 @@ router.post('/enhance', upload.single('image'), async (req, res) => {
         console.error('Error processing image:', {
             message: error.message,
             stack: error.stack,
-            details: error
+            details: error,
+            status: error.status,
+            body: error.body
         });
         res.status(500).json({ 
             error: 'Failed to process image',
-            details: error.message
+            details: error.message,
+            status: error.status,
+            body: error.body
         });
     }
 });
