@@ -4,6 +4,7 @@ const multer = require('multer');
 const { fal } = require('@fal-ai/client');
 const path = require('path');
 const fs = require('fs');
+const sharp = require('sharp');
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, '..', 'uploads');
@@ -51,24 +52,26 @@ router.post('/enhance', upload.single('image'), async (req, res) => {
             return res.status(500).json({ error: 'File upload failed' });
         }
 
-        // Read the file and convert to base64
-        const imageBuffer = fs.readFileSync(req.file.path);
-        const base64Image = `data:${req.file.mimetype};base64,${imageBuffer.toString('base64')}`;
+        // Compress image using sharp
+        const compressedImageBuffer = await sharp(req.file.path)
+            .resize(1000, 1000, { // Resize to max dimensions
+                fit: 'inside',
+                withoutEnlargement: true
+            })
+            .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+            .toBuffer();
 
+        console.log('Image compressed:', {
+            originalSize: req.file.size,
+            compressedSize: compressedImageBuffer.length
+        });
+
+        // Convert compressed image to base64
+        const base64Image = `data:image/jpeg;base64,${compressedImageBuffer.toString('base64')}`;
         console.log('Image converted to base64, length:', base64Image.length);
 
         // Process image with Fal AI product-shot endpoint
-        console.log('Starting Fal AI processing with input:', {
-            scene_description: req.body.prompt || 'on a clean white background, professional product photography',
-            optimize_description: true,
-            num_results: 1,
-            fast: true,
-            placement_type: "manual_placement",
-            shot_size: [1000, 1000],
-            manual_placement_selection: "bottom_center",
-            sync_mode: true
-        });
-
+        console.log('Starting Fal AI processing...');
         const result = await fal.subscribe('fal-ai/bria/product-shot', {
             input: {
                 image_url: base64Image,
@@ -83,13 +86,27 @@ router.post('/enhance', upload.single('image'), async (req, res) => {
             }
         });
 
-        console.log('Fal AI processing completed:', {
-            success: true,
-            imageUrl: result.images[0].url
-        });
+        // Log Fal AI response without the full base64 data
+        const logResult = { ...result };
+        if (logResult.images && Array.isArray(logResult.images)) {
+            logResult.images = logResult.images.map(img => ({
+                ...img,
+                url: img.url ? `[URL length: ${img.url.length}]` : null
+            }));
+        }
+        console.log('Fal AI response:', JSON.stringify(logResult, null, 2));
 
         // Clean up: Delete the uploaded file
         fs.unlinkSync(req.file.path);
+
+        // Check if result has the expected structure
+        if (!result || !result.images || !Array.isArray(result.images) || result.images.length === 0) {
+            console.error('Unexpected Fal AI response structure:', result);
+            return res.status(500).json({
+                error: 'Unexpected response from Fal AI',
+                details: 'The response did not contain the expected image data'
+            });
+        }
 
         // Return the enhanced image URL
         res.json({
@@ -105,6 +122,12 @@ router.post('/enhance', upload.single('image'), async (req, res) => {
             status: error.status,
             body: error.body
         });
+
+        // Clean up the uploaded file if it exists
+        if (req.file && req.file.path && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
+
         res.status(500).json({ 
             error: 'Failed to process image',
             details: error.message,
